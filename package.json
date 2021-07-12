@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/JLChnToZ/node-plurk2#readme",
   "devDependencies": {
-    "typedoc": "^0.14.2",
+    "typedoc": "^0.21.4",
     "typescript": "^3.9.5"
   },
   "dependencies": {
