@@ -1,5 +1,5 @@
 'use strict';
-import { parse as parseUrl, Url } from 'url';
+import { parse as parseUrl, format as formatUrl, Url } from 'url';
 import { parse as parseBody } from 'querystring';
 import { EventEmitter } from 'events';
 import BlueBirdPromise from 'bluebird';
@@ -249,7 +249,7 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
     const source = axios.CancelToken.source();
     this._pollCometRequest = source;
     axios({
-      url: this._cometUrl.href,
+      url: formatUrl(this._cometUrl),
       timeout: 80000,
       responseType: 'text',
       cancelToken: source.token,
