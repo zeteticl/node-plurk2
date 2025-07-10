@@ -246,10 +246,16 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
     if(!this.cometStarted) return;
     if(!this._cometUrl)
       throw new Error('Unknown comet url');
+    
+    const cometUrlString = this._cometUrl.href || formatUrl(this._cometUrl);
+    if(!cometUrlString) {
+      throw new Error('Invalid comet URL format');
+    }
+    
     const source = axios.CancelToken.source();
     this._pollCometRequest = source;
     axios({
-      url: formatUrl(this._cometUrl),
+      url: cometUrlString,
       timeout: 80000,
       responseType: 'text',
       cancelToken: source.token,
@@ -305,6 +311,8 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
 
   private _getAxiosConfig(requestData: OAuth.RequestOptions, useFormData: boolean = false): AxiosRequestConfig {
     return {
+      url: requestData.url,
+      method: requestData.method as any,
       headers: {
         ...this._oauth.toHeader(this._oauth.authorize(requestData, {
           key: this.token,
