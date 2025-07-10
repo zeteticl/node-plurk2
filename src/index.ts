@@ -282,6 +282,10 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
       process.nextTick(PlurkClientUtils.pollComet, this);
     })
     .catch((err: any): void => {
+      if(axios.isCancel(err)) {
+        // Handle cancellation errors specifically
+        return;
+      }
       if(this.stopCometOnError)
         this.cometStarted = false;
       else
