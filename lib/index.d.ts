@@ -1,6 +1,5 @@
-/// <reference types="node" />
 import { EventEmitter } from 'events';
-import * as request from 'request-promise';
+import BlueBirdPromise from 'bluebird';
 import { limitTo } from './limit-to';
 import { APIParameters } from './api-parameters';
 /**
@@ -43,6 +42,7 @@ export declare class PlurkClient extends EventEmitter implements IPlurkClientEve
     populateUsers: boolean;
     private _cometUrl?;
     private _pollCometRequest?;
+    private _oauth;
     /**
      * Constructor
      * @param consumerKey Consumer token, can be obtain one from Plurk App console.
@@ -86,7 +86,7 @@ export declare class PlurkClient extends EventEmitter implements IPlurkClientEve
      * Also, the response will return some timing measurement info for the call, for details please see
      * [the usage of the request package](https://github.com/request/request/blob/master/README.md)
      */
-    request<K extends keyof APIParameters>(api: K, parameters?: APIParameters[K][0]): request.RequestPromise & PromiseLike<APIParameters[K][1]>;
+    request<K extends keyof APIParameters>(api: K, parameters?: APIParameters[K][0]): BlueBirdPromise<APIParameters[K][1]>;
     /**
      * Start long poll from comet channel, it auto handles request for comet server
      * URL and it will auto keep polling until you stops it.
@@ -111,7 +111,7 @@ export declare class PlurkClient extends EventEmitter implements IPlurkClientEve
      * Users may navigate to this URL instead of `authPage` if they are using smartphones.
      */
     get mobileAuthPage(): string;
-    private _getOAuthParams;
+    private _getAxiosConfig;
     private _setOAuthParams;
 }
 export interface IPlurkClientEventEmitter extends NodeJS.EventEmitter {

@@ -2,9 +2,11 @@
 import { parse as parseUrl, Url } from 'url';
 import { parse as parseBody } from 'querystring';
 import { EventEmitter } from 'events';
-import * as BlueBirdPromise from 'bluebird';
-import { OAuthOptions } from 'request';
-import * as request from 'request-promise';
+import BlueBirdPromise from 'bluebird';
+import axios, { AxiosRequestConfig, AxiosResponse, CancelTokenSource } from 'axios';
+import * as crypto from 'crypto';
+import OAuth from 'oauth-1.0a';
+import FormData from 'form-data';
 import { limitTo } from './limit-to';
 import { APIStructs } from './api-structs';
 import { APIParameters } from './api-parameters';
@@ -54,7 +56,8 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
    */
   populateUsers: boolean = false;
   private _cometUrl?: Url;
-  private _pollCometRequest?: BlueBirdPromise<any>;
+  private _pollCometRequest?: CancelTokenSource;
+  private _oauth: OAuth;
 
   /**
    * Constructor
@@ -72,6 +75,14 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
     this.consumerSecret = consumerSecret;
     this.token = token;
     this.tokenSecret = tokenSecret;
+    this._oauth = new OAuth({
+      consumer: {
+        key: this.consumerKey,
+        secret: this.consumerSecret,
+      },
+      signature_method: 'HMAC-SHA1',
+      hash_function: (base: string, key: string) => crypto.createHmac('sha1', key).update(base).digest('base64'),
+    });
   }
 
   /**
@@ -81,10 +92,18 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
    * @return {PromiseLike.<this>} Current plurk client instance.
    */
   async getRequestToken(callback: string = ''): Promise<this> {
-    const body = await request({
-      method: 'POST', url: requestTokenUrl,
-      oauth: this._getOAuthParams({ callback })
-    });
+    const requestData = {
+      url: requestTokenUrl,
+      method: 'POST',
+      data: {
+        oauth_callback: callback,
+      },
+    };
+    const { data: body } = await axios.post<string>(
+      requestData.url,
+      requestData.data,
+      this._getAxiosConfig(requestData),
+    );
     return this._setOAuthParams(body);
   }
 
@@ -96,10 +115,18 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
    * @return {PromiseLike.<this>} Current plurk client instance.
    */
   async getAccessToken(verifier: string): Promise<this> {
-    const body = await request({
-      method: 'POST', url: accessTokenUrl,
-      oauth: this._getOAuthParams({ verifier })
-    });
+    const requestData = {
+      url: accessTokenUrl,
+      method: 'POST',
+      data: {
+        oauth_verifier: verifier,
+      },
+    };
+    const { data: body } = await axios.post<string>(
+      requestData.url,
+      requestData.data,
+      this._getAxiosConfig(requestData)
+    );
     return this._setOAuthParams(body);
   }
 
@@ -124,12 +151,12 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
   request<K extends keyof APIParameters>(
     api: K,
     parameters?: APIParameters[K][0],
-  ): request.RequestPromise & PromiseLike<APIParameters[K][1]>;
-  request(api: string, parameters?: any): request.RequestPromise {
+  ): BlueBirdPromise<APIParameters[K][1]>;
+  request(api: string, parameters?: any): BlueBirdPromise<any> {
     const resolved: string[] | null = pathMatcher.exec(api);
     if(!resolved || resolved.length < 2)
       throw new Error(`Invalid api path '${api}'`);
-    const form: any = {};
+    const data: any = {};
     let useFormData: boolean = false;
     if(parameters)
       for(let key in parameters) {
@@ -138,31 +165,45 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
           case 'undefined': case 'function': case 'symbol': break;
           case 'object':
             if(value instanceof Date)
-              form[key] = value.toISOString();
+              data[key] = value.toISOString();
             else if(value && (value instanceof Buffer || typeof value.pipe === 'function')) {
-              form[key] = value;
+              data[key] = value;
               useFormData = true;
             } else
-              form[key] = JSON.stringify(value);
+              data[key] = JSON.stringify(value);
             break;
           default:
-            form[key] = value;
+            data[key] = value;
             break;
         }
       }
-    return request({
+    const requestData = {
       url: `${endPoint}APP/${resolved[1]}`,
-      [useFormData ? 'formData' : 'form']: form,
-      method: 'POST', json: true,
-      jsonReviver: PlurkClientUtils.parseResponse,
-      headers: {
-        'Content-Type': useFormData ?
-          'multipart/form-data' :
-          'application/x-www-form-urlencoded',
-      },
-      oauth: this._getOAuthParams(),
-      time: true,
-      transform: transformWithTiming,
+      method: 'POST',
+      data,
+    };
+    const config = this._getAxiosConfig(requestData, useFormData);
+    if(useFormData) {
+      const form = new FormData();
+      for(const key in data)
+        if(Object.prototype.hasOwnProperty.call(data, key))
+          form.append(key, data[key]);
+      config.data = form;
+      config.headers = {
+        ...config.headers,
+        ...form.getHeaders(),
+      };
+    } else {
+      config.responseType = 'json';
+      config.transformResponse = (data) => JSON.parse(data, PlurkClientUtils.parseResponse);
+    }
+    return new BlueBirdPromise<any>((resolve: (thenableOrResult?: any) => void, reject: (error?: any) => void, onCancel?: (callback: () => void) => void) => {
+      const source = axios.CancelToken.source();
+      if(onCancel) onCancel(() => source.cancel());
+      axios.request(config)
+        .then(res => transformWithTiming(res.data, res))
+        .then(resolve)
+        .catch(reject);
     });
   }
 
@@ -190,12 +231,9 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
    * Stops long poll from comet channel.
    */
   stopComet(): void {
-    if(!this.cometStarted) return;
     this.cometStarted = false;
-    if(this._pollCometRequest) {
+    if(this._pollCometRequest)
       this._pollCometRequest.cancel();
-      delete this._pollCometRequest;
-    }
   }
 
   /**
@@ -208,11 +246,15 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
     if(!this.cometStarted) return;
     if(!this._cometUrl)
       throw new Error('Unknown comet url');
-    this._pollCometRequest = request({
-      url: this._cometUrl, timeout: 60000,
-      agentOptions: { rejectUnauthorized: false }
+    const source = axios.CancelToken.source();
+    this._pollCometRequest = source;
+    axios({
+      url: this._cometUrl.href,
+      timeout: 80000,
+      responseType: 'text',
+      cancelToken: source.token,
     })
-    .then((response: string): void => {
+    .then(({ data: response}) => {
       if(!this._cometUrl)
         throw new Error('Unknown comet url');
       const parsedResponse: any = JSON.parse(response.substring(
@@ -250,7 +292,7 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
    * once the promise of `getRequestToken(...)` has been resolved.
    */
   get authPage(): string {
-    return this.token ? `${endPoint}OAuth/authorize?oauth_token=${this.token}` : '';
+    return `${endPoint}OAuth/authorize?oauth_token=${this.token}`;
   }
 
   /**
@@ -261,40 +303,39 @@ export class PlurkClient extends EventEmitter implements IPlurkClientEventEmitte
     return this.token ? `${endPoint}m/authorize?oauth_token=${this.token}` : '';
   }
 
-  private _getOAuthParams(params: OAuthOptions = {}): OAuthOptions {
-    params.consumer_key = this.consumerKey;
-    params.consumer_secret = this.consumerSecret;
-    if(this.token)
-      params.token = this.token;
-    if(this.tokenSecret)
-      params.token_secret = this.tokenSecret;
-    return params;
+  private _getAxiosConfig(requestData: OAuth.RequestOptions, useFormData: boolean = false): AxiosRequestConfig {
+    return {
+      headers: {
+        ...this._oauth.toHeader(this._oauth.authorize(requestData, {
+          key: this.token,
+          secret: this.tokenSecret,
+        })),
+        'Content-Type': useFormData ?
+          'multipart/form-data' :
+          'application/x-www-form-urlencoded',
+      },
+    };
   }
 
-  private _setOAuthParams(body: string): this {
-    const val: any = parseBody(body);
-    if(val.oauth_token)
-      this.token = val.oauth_token;
-    if(val.oauth_token_secret)
-      this.tokenSecret = val.oauth_token_secret;
+  private _setOAuthParams(body: string) {
+    const data: any = parseBody(body);
+    if(data.oauth_token)
+      this.token = data.oauth_token;
+    if(data.oauth_token_secret)
+      this.tokenSecret = data.oauth_token_secret;
     return this;
   }
 }
 
-function transformWithTiming(body: any, response: any, resolveFullResponse?: boolean) {
-  if(!resolveFullResponse) {
-    assignIfExists(body, response, 'elapsedTime');
-    assignIfExists(body, response, 'responseStartTime');
-    assignIfExists(body, response, 'timingStart');
-    assignIfExists(body, response, 'timings');
-    assignIfExists(body, response, 'timingPhases');
-    return body;
-  }
-  return response;
+function transformWithTiming(body: any, response: AxiosResponse) {
+  assignIfExists(body, response, 'headers');
+  assignIfExists(body, response, 'status');
+  assignIfExists(body, response, 'statusText');
+  return body;
 }
 
-function assignIfExists(a: any, b: any, key: PropertyKey) {
-  if((key in b) && !(key in a)) a[key] = b[key];
+function assignIfExists(target: any, source: any, key: string) {
+  if(Object.prototype.hasOwnProperty.call(source, key)) target[key] = source[key];
 }
 
 namespace PlurkClientUtils {

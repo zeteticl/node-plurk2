@@ -1,4 +1,4 @@
-import * as request from 'request-promise';
+import axios from 'axios';
 import { readFile, writeFile } from 'fs';
 import { join as joinPath } from 'path';
 import { promisify } from 'util';
@@ -128,10 +128,8 @@ function printNamespaces(out: string[], namespaces: Map<string, any>, indent = '
 }
 
 async function generateAPIMap() {
-  const apiMap: {
-    [api: string]: string[];
-  } = await request(API_ENDPOINT, { 
-    json: true,
+  const { data: apiMap } = await axios.get<{[api: string]: string[]}>(API_ENDPOINT, {
+    responseType: 'json',
   });
   const namespaces = new Map<string, any>();
   const packageJson = JSON.parse(await readFileAsync(joinPath(__dirname, '../package.json'), 'utf8'));

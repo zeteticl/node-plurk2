@@ -1,94 +1,361 @@
 export interface APIParameters {
     [api: string]: [any, any];
-    'Users/me': [Users.MeOptions, any];
-    'Users/getKarmaStats': [Users.GetKarmaStatsOptions, any];
-    'Users/update': [Users.UpdateOptions, any];
-    'Users/updateBackground': [Users.UpdateBackgroundOptions, any];
-    'Users/setNameColor': [Users.SetNameColorOptions, any];
-    'Users/getAliases': [Users.GetAliasesOptions, any];
-    'Users/setAlias': [Users.SetAliasOptions, any];
-    'Profile/getOwnProfile': [Profile.GetOwnProfileOptions, any];
-    'Profile/getPublicProfile': [Profile.GetPublicProfileOptions, any];
-    'Polling/getPlurks': [Polling.GetPlurksOptions, any];
-    'Polling/getUnreadCount': [Polling.GetUnreadCountOptions, any];
-    'Timeline/getPlurk': [Timeline.GetPlurkOptions, any];
-    'Timeline/getPlurkCountsInfo': [Timeline.GetPlurkCountsInfoOptions, any];
-    'Timeline/getPlurks': [Timeline.GetPlurksOptions, any];
-    'Timeline/getPublicPlurks': [Timeline.GetPublicPlurksOptions, any];
-    'Timeline/getUnreadPlurks': [Timeline.GetUnreadPlurksOptions, any];
-    'Timeline/plurkAdd': [Timeline.PlurkAddOptions, any];
-    'Timeline/plurkDelete': [Timeline.PlurkDeleteOptions, any];
-    'Timeline/plurkEdit': [Timeline.PlurkEditOptions, any];
-    'Timeline/mutePlurks': [Timeline.MutePlurksOptions, any];
-    'Timeline/unmutePlurks': [Timeline.UnmutePlurksOptions, any];
-    'Timeline/favoritePlurks': [Timeline.FavoritePlurksOptions, any];
-    'Timeline/unfavoritePlurks': [Timeline.UnfavoritePlurksOptions, any];
-    'Timeline/replurk': [Timeline.ReplurkOptions, any];
-    'Timeline/unreplurk': [Timeline.UnreplurkOptions, any];
-    'Timeline/markAsRead': [Timeline.MarkAsReadOptions, any];
-    'Timeline/uploadPicture': [Timeline.UploadPictureOptions, any];
-    'Timeline/toggleComments': [Timeline.ToggleCommentsOptions, any];
-    'Timeline/setPorn': [Timeline.SetPornOptions, any];
-    'Timeline/reportAbuse': [Timeline.ReportAbuseOptions, any];
-    'Timeline/setUnreadSnapshot': [Timeline.SetUnreadSnapshotOptions, any];
-    'Timeline/markAllAsRead': [Timeline.MarkAllAsReadOptions, any];
-    'Responses/get': [Responses.GetOptions, any];
-    'Responses/getById': [Responses.GetByIdOptions, any];
-    'Responses/getAroundSeen': [Responses.GetAroundSeenOptions, any];
-    'Responses/responseAdd': [Responses.ResponseAddOptions, any];
-    'Responses/responseDelete': [Responses.ResponseDeleteOptions, any];
-    'Responses/edit': [Responses.EditOptions, any];
-    'Responses/reportAbuse': [Responses.ReportAbuseOptions, any];
-    'FriendsFans/getFriendsByOffset': [FriendsFans.GetFriendsByOffsetOptions, any];
-    'FriendsFans/getFansByOffset': [FriendsFans.GetFansByOffsetOptions, any];
-    'FriendsFans/getFollowingByOffset': [FriendsFans.GetFollowingByOffsetOptions, any];
-    'FriendsFans/becomeFriend': [FriendsFans.BecomeFriendOptions, any];
-    'FriendsFans/removeAsFriend': [FriendsFans.RemoveAsFriendOptions, any];
-    'FriendsFans/becomeFan': [FriendsFans.BecomeFanOptions, any];
-    'FriendsFans/setFollowing': [FriendsFans.SetFollowingOptions, any];
-    'FriendsFans/getCompletion': [FriendsFans.GetCompletionOptions, any];
-    'FriendsFans/getFriendshipRequests': [FriendsFans.GetFriendshipRequestsOptions, any];
-    'FriendsFans/setFollowingReplurk': [FriendsFans.SetFollowingReplurkOptions, any];
-    'Alerts/getActive': [Alerts.GetActiveOptions, any];
-    'Alerts/getUnreadCounts': [Alerts.GetUnreadCountsOptions, any];
-    'Alerts/getHistory': [Alerts.GetHistoryOptions, any];
-    'Alerts/addAsFan': [Alerts.AddAsFanOptions, any];
-    'Alerts/addAllAsFan': [Alerts.AddAllAsFanOptions, any];
-    'Alerts/addAllAsFriends': [Alerts.AddAllAsFriendsOptions, any];
-    'Alerts/denyAll': [Alerts.DenyAllOptions, any];
-    'Alerts/addAsFriend': [Alerts.AddAsFriendOptions, any];
-    'Alerts/denyFriendship': [Alerts.DenyFriendshipOptions, any];
-    'Alerts/removeNotification': [Alerts.RemoveNotificationOptions, any];
-    'PlurkSearch/search': [PlurkSearch.SearchOptions, any];
-    'UserSearch/search': [UserSearch.SearchOptions, any];
-    'UserSearch/searchAllField': [UserSearch.SearchAllFieldOptions, any];
-    'Emoticons/get': [Emoticons.GetOptions, any];
-    'Emoticons/addFromURL': [Emoticons.AddFromURLOptions, any];
-    'Emoticons/delete': [Emoticons.DeleteOptions, any];
-    'Blocks/get': [Blocks.GetOptions, any];
-    'Blocks/block': [Blocks.BlockOptions, any];
-    'Blocks/unblock': [Blocks.UnblockOptions, any];
-    'Cliques/getCliques': [Cliques.GetCliquesOptions, any];
-    'Cliques/getClique': [Cliques.GetCliqueOptions, any];
-    'Cliques/createClique': [Cliques.CreateCliqueOptions, any];
-    'Cliques/deleteClique': [Cliques.DeleteCliqueOptions, any];
-    'Cliques/renameClique': [Cliques.RenameCliqueOptions, any];
-    'Cliques/add': [Cliques.AddOptions, any];
-    'Cliques/remove': [Cliques.RemoveOptions, any];
-    'Bookmarks/setBookmark': [Bookmarks.SetBookmarkOptions, any];
-    'Bookmarks/getBookmarks': [Bookmarks.GetBookmarksOptions, any];
-    'Bookmarks/getBookmark': [Bookmarks.GetBookmarkOptions, any];
-    'Bookmarks/updateBookmark': [Bookmarks.UpdateBookmarkOptions, any];
-    'Bookmarks/getTags': [Bookmarks.GetTagsOptions, any];
-    'Bookmarks/createTag': [Bookmarks.CreateTagOptions, any];
-    'Bookmarks/updateTag': [Bookmarks.UpdateTagOptions, any];
-    'Bookmarks/removeTag': [Bookmarks.RemoveTagOptions, any];
-    'Realtime/getUserChannel': [Realtime.GetUserChannelOptions, any];
-    'checkToken': [CheckTokenOptions, any];
-    'expireToken': [ExpireTokenOptions, any];
-    'checkTime': [CheckTimeOptions, any];
-    'checkIP': [CheckIPOptions, any];
-    'echo': [EchoOptions, any];
+    'Users/me': [
+        Users.MeOptions,
+        any
+    ];
+    'Users/getKarmaStats': [
+        Users.GetKarmaStatsOptions,
+        any
+    ];
+    'Users/update': [
+        Users.UpdateOptions,
+        any
+    ];
+    'Users/updateBackground': [
+        Users.UpdateBackgroundOptions,
+        any
+    ];
+    'Users/setNameColor': [
+        Users.SetNameColorOptions,
+        any
+    ];
+    'Users/getAliases': [
+        Users.GetAliasesOptions,
+        any
+    ];
+    'Users/setAlias': [
+        Users.SetAliasOptions,
+        any
+    ];
+    'Profile/getOwnProfile': [
+        Profile.GetOwnProfileOptions,
+        any
+    ];
+    'Profile/getPublicProfile': [
+        Profile.GetPublicProfileOptions,
+        any
+    ];
+    'Polling/getPlurks': [
+        Polling.GetPlurksOptions,
+        any
+    ];
+    'Polling/getUnreadCount': [
+        Polling.GetUnreadCountOptions,
+        any
+    ];
+    'Timeline/getPlurk': [
+        Timeline.GetPlurkOptions,
+        any
+    ];
+    'Timeline/getPlurkCountsInfo': [
+        Timeline.GetPlurkCountsInfoOptions,
+        any
+    ];
+    'Timeline/getPlurks': [
+        Timeline.GetPlurksOptions,
+        any
+    ];
+    'Timeline/getPublicPlurks': [
+        Timeline.GetPublicPlurksOptions,
+        any
+    ];
+    'Timeline/getUnreadPlurks': [
+        Timeline.GetUnreadPlurksOptions,
+        any
+    ];
+    'Timeline/plurkAdd': [
+        Timeline.PlurkAddOptions,
+        any
+    ];
+    'Timeline/plurkDelete': [
+        Timeline.PlurkDeleteOptions,
+        any
+    ];
+    'Timeline/plurkEdit': [
+        Timeline.PlurkEditOptions,
+        any
+    ];
+    'Timeline/mutePlurks': [
+        Timeline.MutePlurksOptions,
+        any
+    ];
+    'Timeline/unmutePlurks': [
+        Timeline.UnmutePlurksOptions,
+        any
+    ];
+    'Timeline/favoritePlurks': [
+        Timeline.FavoritePlurksOptions,
+        any
+    ];
+    'Timeline/unfavoritePlurks': [
+        Timeline.UnfavoritePlurksOptions,
+        any
+    ];
+    'Timeline/replurk': [
+        Timeline.ReplurkOptions,
+        any
+    ];
+    'Timeline/unreplurk': [
+        Timeline.UnreplurkOptions,
+        any
+    ];
+    'Timeline/markAsRead': [
+        Timeline.MarkAsReadOptions,
+        any
+    ];
+    'Timeline/uploadPicture': [
+        Timeline.UploadPictureOptions,
+        any
+    ];
+    'Timeline/toggleComments': [
+        Timeline.ToggleCommentsOptions,
+        any
+    ];
+    'Timeline/setPorn': [
+        Timeline.SetPornOptions,
+        any
+    ];
+    'Timeline/reportAbuse': [
+        Timeline.ReportAbuseOptions,
+        any
+    ];
+    'Timeline/setUnreadSnapshot': [
+        Timeline.SetUnreadSnapshotOptions,
+        any
+    ];
+    'Timeline/markAllAsRead': [
+        Timeline.MarkAllAsReadOptions,
+        any
+    ];
+    'Responses/get': [
+        Responses.GetOptions,
+        any
+    ];
+    'Responses/getById': [
+        Responses.GetByIdOptions,
+        any
+    ];
+    'Responses/getAroundSeen': [
+        Responses.GetAroundSeenOptions,
+        any
+    ];
+    'Responses/responseAdd': [
+        Responses.ResponseAddOptions,
+        any
+    ];
+    'Responses/responseDelete': [
+        Responses.ResponseDeleteOptions,
+        any
+    ];
+    'Responses/edit': [
+        Responses.EditOptions,
+        any
+    ];
+    'Responses/reportAbuse': [
+        Responses.ReportAbuseOptions,
+        any
+    ];
+    'FriendsFans/getFriendsByOffset': [
+        FriendsFans.GetFriendsByOffsetOptions,
+        any
+    ];
+    'FriendsFans/getFansByOffset': [
+        FriendsFans.GetFansByOffsetOptions,
+        any
+    ];
+    'FriendsFans/getFollowingByOffset': [
+        FriendsFans.GetFollowingByOffsetOptions,
+        any
+    ];
+    'FriendsFans/becomeFriend': [
+        FriendsFans.BecomeFriendOptions,
+        any
+    ];
+    'FriendsFans/removeAsFriend': [
+        FriendsFans.RemoveAsFriendOptions,
+        any
+    ];
+    'FriendsFans/becomeFan': [
+        FriendsFans.BecomeFanOptions,
+        any
+    ];
+    'FriendsFans/setFollowing': [
+        FriendsFans.SetFollowingOptions,
+        any
+    ];
+    'FriendsFans/getCompletion': [
+        FriendsFans.GetCompletionOptions,
+        any
+    ];
+    'FriendsFans/getFriendshipRequests': [
+        FriendsFans.GetFriendshipRequestsOptions,
+        any
+    ];
+    'FriendsFans/setFollowingReplurk': [
+        FriendsFans.SetFollowingReplurkOptions,
+        any
+    ];
+    'Alerts/getActive': [
+        Alerts.GetActiveOptions,
+        any
+    ];
+    'Alerts/getUnreadCounts': [
+        Alerts.GetUnreadCountsOptions,
+        any
+    ];
+    'Alerts/getHistory': [
+        Alerts.GetHistoryOptions,
+        any
+    ];
+    'Alerts/addAsFan': [
+        Alerts.AddAsFanOptions,
+        any
+    ];
+    'Alerts/addAllAsFan': [
+        Alerts.AddAllAsFanOptions,
+        any
+    ];
+    'Alerts/addAllAsFriends': [
+        Alerts.AddAllAsFriendsOptions,
+        any
+    ];
+    'Alerts/denyAll': [
+        Alerts.DenyAllOptions,
+        any
+    ];
+    'Alerts/addAsFriend': [
+        Alerts.AddAsFriendOptions,
+        any
+    ];
+    'Alerts/denyFriendship': [
+        Alerts.DenyFriendshipOptions,
+        any
+    ];
+    'Alerts/removeNotification': [
+        Alerts.RemoveNotificationOptions,
+        any
+    ];
+    'PlurkSearch/search': [
+        PlurkSearch.SearchOptions,
+        any
+    ];
+    'UserSearch/search': [
+        UserSearch.SearchOptions,
+        any
+    ];
+    'UserSearch/searchAllField': [
+        UserSearch.SearchAllFieldOptions,
+        any
+    ];
+    'Emoticons/get': [
+        Emoticons.GetOptions,
+        any
+    ];
+    'Emoticons/addFromURL': [
+        Emoticons.AddFromURLOptions,
+        any
+    ];
+    'Emoticons/delete': [
+        Emoticons.DeleteOptions,
+        any
+    ];
+    'Blocks/get': [
+        Blocks.GetOptions,
+        any
+    ];
+    'Blocks/block': [
+        Blocks.BlockOptions,
+        any
+    ];
+    'Blocks/unblock': [
+        Blocks.UnblockOptions,
+        any
+    ];
+    'Cliques/getCliques': [
+        Cliques.GetCliquesOptions,
+        any
+    ];
+    'Cliques/getClique': [
+        Cliques.GetCliqueOptions,
+        any
+    ];
+    'Cliques/createClique': [
+        Cliques.CreateCliqueOptions,
+        any
+    ];
+    'Cliques/deleteClique': [
+        Cliques.DeleteCliqueOptions,
+        any
+    ];
+    'Cliques/renameClique': [
+        Cliques.RenameCliqueOptions,
+        any
+    ];
+    'Cliques/add': [
+        Cliques.AddOptions,
+        any
+    ];
+    'Cliques/remove': [
+        Cliques.RemoveOptions,
+        any
+    ];
+    'Bookmarks/setBookmark': [
+        Bookmarks.SetBookmarkOptions,
+        any
+    ];
+    'Bookmarks/getBookmarks': [
+        Bookmarks.GetBookmarksOptions,
+        any
+    ];
+    'Bookmarks/getBookmark': [
+        Bookmarks.GetBookmarkOptions,
+        any
+    ];
+    'Bookmarks/updateBookmark': [
+        Bookmarks.UpdateBookmarkOptions,
+        any
+    ];
+    'Bookmarks/getTags': [
+        Bookmarks.GetTagsOptions,
+        any
+    ];
+    'Bookmarks/createTag': [
+        Bookmarks.CreateTagOptions,
+        any
+    ];
+    'Bookmarks/updateTag': [
+        Bookmarks.UpdateTagOptions,
+        any
+    ];
+    'Bookmarks/removeTag': [
+        Bookmarks.RemoveTagOptions,
+        any
+    ];
+    'Realtime/getUserChannel': [
+        Realtime.GetUserChannelOptions,
+        any
+    ];
+    'checkToken': [
+        CheckTokenOptions,
+        any
+    ];
+    'expireToken': [
+        ExpireTokenOptions,
+        any
+    ];
+    'checkTime': [
+        CheckTimeOptions,
+        any
+    ];
+    'checkIP': [
+        CheckIPOptions,
+        any
+    ];
+    'echo': [
+        EchoOptions,
+        any
+    ];
 }
 export declare namespace Users {
     interface MeOptions {
